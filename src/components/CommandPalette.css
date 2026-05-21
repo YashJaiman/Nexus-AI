@@ -1,0 +1,189 @@
+/* =========================================================
+   Nexus AI — Command Palette CSS
+   ========================================================= */
+
+.cmd-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 4, 12, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+  animation: cmd-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cmd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.cmd-container {
+  width: 90%;
+  max-width: 600px;
+  background: rgba(15, 15, 30, 0.95);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 1.125rem;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 480px;
+  animation: cmd-scale-up 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cmd-scale-up {
+  from { transform: scale(0.95) translateY(-10px); }
+  to { transform: scale(1) translateY(0); }
+}
+
+.cmd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.125rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cmd-search-ico {
+  font-size: 1.1rem;
+  opacity: 0.6;
+}
+
+.cmd-input {
+  flex: 1;
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 0.95rem;
+  color: #ffffff;
+  outline: none;
+}
+
+.cmd-input:focus {
+  box-shadow: none !important;
+}
+
+.cmd-esc-kbd {
+  font-size: 0.65rem;
+  color: #7070a0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+
+.cmd-results {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+/* Category header */
+.cmd-category-hdr {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  color: #00d4ff;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 0.6rem 0.35rem;
+  opacity: 0.8;
+}
+
+.cmd-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #a0a0c0;
+}
+
+.cmd-item-icon {
+  font-size: 1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.cmd-item-label {
+  font-size: 0.825rem;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmd-item-enter {
+  font-size: 0.65rem;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.25rem;
+  opacity: 0.85;
+}
+
+.cmd-item:hover,
+.cmd-item.selected {
+  background: rgba(0, 212, 255, 0.08);
+  color: #ffffff;
+}
+
+.cmd-empty {
+  padding: 2.5rem;
+  text-align: center;
+  font-size: 0.825rem;
+  color: #707090;
+}
+
+.cmd-footer {
+  display: flex;
+  gap: 1.25rem;
+  padding: 0.875rem 1.125rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.68rem;
+  color: #555575;
+  background: rgba(10, 10, 24, 0.4);
+}
+
+/* Light Theme Overrides */
+:root.light-theme .cmd-container {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 136, 204, 0.2);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+}
+
+:root.light-theme .cmd-input {
+  color: #1f2937;
+}
+
+:root.light-theme .cmd-esc-kbd {
+  color: #718096;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+:root.light-theme .cmd-item {
+  color: #4a5568;
+}
+
+:root.light-theme .cmd-item:hover,
+:root.light-theme .cmd-item.selected {
+  background: rgba(0, 136, 204, 0.08);
+  color: #0088cc;
+}
+
+:root.light-theme .cmd-item-enter {
+  color: #0088cc;
+  background: rgba(0, 136, 204, 0.1);
+  border-color: rgba(0, 136, 204, 0.2);
+}
+
+:root.light-theme .cmd-footer {
+  color: #718096;
+  background: rgba(0, 0, 0, 0.02);
+}

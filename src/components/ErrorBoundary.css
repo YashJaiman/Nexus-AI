@@ -1,0 +1,81 @@
+/* =========================================================
+   Nexus AI — Error Boundary CSS
+   ========================================================= */
+
+.err-boundary-root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #150b2b 0%, #060410 100%);
+  padding: 1.5rem;
+}
+
+.err-boundary-card {
+  max-width: 480px;
+  width: 100%;
+  padding: 2.5rem 2rem;
+  text-align: center;
+  background: rgba(22, 12, 42, 0.4);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 25px rgba(239, 68, 68, 0.08);
+  border-radius: 1.25rem;
+}
+
+.err-boundary-logo {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  animation: float-animation 3s ease-in-out infinite;
+}
+
+.err-boundary-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fca5a5;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
+}
+
+.err-boundary-msg {
+  font-size: 0.875rem;
+  color: var(--color-dark-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.err-boundary-stack {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: left;
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 2rem;
+}
+
+.err-boundary-stack code {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.75rem;
+  color: #ef4444;
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.err-boundary-btn {
+  background: linear-gradient(90deg, #ef4444 0%, #b91c1c 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+  transition: all 0.3s ease;
+}
+
+.err-boundary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.4);
+  background: linear-gradient(90deg, #f87171 0%, #dc2626 100%);
+}

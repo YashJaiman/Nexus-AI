@@ -1,0 +1,482 @@
+/* =========================================================
+   Nexus AI — Notes Section Styling (Futuristic Code Editor)
+   ========================================================= */
+
+.nt-root {
+  display: flex;
+  height: calc(100vh - 120px); /* Fill screen below navbar */
+  background: rgba(14, 15, 30, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+  animation: nt-fade-in 0.4s ease-out;
+}
+
+@keyframes nt-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .nt-root {
+    flex-direction: column;
+    height: auto;
+    min-height: 500px;
+  }
+}
+
+/* ── 1. Notes Sidebar ── */
+.nt-sidebar {
+  width: 320px;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(18, 18, 36, 0.4);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .nt-sidebar {
+    width: 100%;
+    height: 300px;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}
+
+.nt-sb-header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.nt-sb-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nt-sb-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-primary-light);
+  margin: 0;
+}
+
+.nt-new-btn {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  color: var(--color-primary-light);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nt-new-btn:hover {
+  background: rgba(0, 212, 255, 0.16);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+}
+
+.nt-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nt-search-input {
+  width: 100%;
+  padding: 0.5rem var(--spacing-sm) 0.5rem 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: all 0.25s;
+}
+
+.nt-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: rgba(0, 212, 255, 0.01);
+}
+
+.nt-search-icon {
+  position: absolute;
+  left: 0.65rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Category Filter Chips inside Notes List */
+.nt-cat-filters {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.5rem var(--spacing-md);
+  overflow-x: auto;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  flex-shrink: 0;
+}
+
+.nt-cat-filters::-webkit-scrollbar {
+  display: none; /* Hide scrollbars for chips */
+}
+
+.nt-cat-chip {
+  flex-shrink: 0;
+  padding: 0.2rem 0.55rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nt-cat-chip:hover {
+  border-color: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.nt-cat-chip-active {
+  background: rgba(0, 212, 255, 0.08) !important;
+  color: var(--color-primary-light) !important;
+  border-color: rgba(0, 212, 255, 0.25) !important;
+}
+
+/* Scrollable list */
+.nt-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.nt-item {
+  padding: 0.95rem var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  cursor: pointer;
+  transition: all 0.25s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  text-align: left;
+}
+
+.nt-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nt-item-active {
+  background: rgba(0, 212, 255, 0.03) !important;
+  border-left: 2px solid var(--color-primary);
+}
+
+.nt-item-title {
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-semibold);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.nt-item-preview {
+  font-size: 0.75rem;
+  color: var(--color-dark-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.nt-item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.25);
+  margin-top: 0.2rem;
+}
+
+.nt-item-cat {
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-primary-light);
+}
+
+/* ── 2. Editor Space ── */
+.nt-editor-space {
+  flex-grow: 1;
+  background: rgba(10, 10, 20, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Empty Editor state */
+.nt-empty-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--color-dark-text-secondary);
+  text-align: center;
+  padding: var(--spacing-2xl);
+  animation: nt-fade-in 0.3s ease-out;
+}
+
+.nt-empty-icon {
+  font-size: 2.5rem;
+  color: rgba(168, 85, 247, 0.25);
+  margin-bottom: var(--spacing-md);
+  text-shadow: 0 0 16px rgba(168, 85, 247, 0.05);
+}
+
+.nt-empty-title {
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.4rem 0;
+}
+
+.nt-empty-sub {
+  font-size: var(--font-size-xs);
+  max-width: 320px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── 3. Active Note Header ── */
+.nt-ed-header {
+  padding: 0.85rem var(--spacing-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.nt-ed-title-input {
+  flex-grow: 1;
+  min-width: 200px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  outline: none;
+  padding: 0;
+}
+
+.nt-ed-title-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.nt-ed-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Category select inside editor header */
+.nt-ed-cat-select {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  color: var(--color-primary-light);
+  font-family: inherit;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.5rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.nt-ed-cat-select option {
+  background: #151528;
+  color: #fff;
+}
+
+/* Debounced status indicators */
+.nt-sync-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.nt-sync-spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(0, 212, 255, 0.2);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: nt-spin 0.8s linear infinite;
+}
+
+@keyframes nt-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Write vs Preview Toggle */
+.nt-toggle-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.nt-toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nt-toggle-btn-active {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-weight: 600;
+}
+
+.nt-del-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+}
+
+.nt-del-btn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+/* ── 4. Main Edit/Preview Pane ── */
+.nt-body-pane {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.nt-textarea {
+  flex-grow: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+}
+
+/* Markdown preview wrapper */
+.nt-preview {
+  flex-grow: 1;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.88);
+  text-align: left;
+}
+
+/* Premium Code Preview Stylings */
+.nt-preview h1, .nt-preview h2, .nt-preview h3 {
+  font-family: 'Space Mono', monospace;
+  color: #fff;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding-bottom: 0.25rem;
+}
+
+.nt-preview h1 { font-size: 1.35rem; }
+.nt-preview h2 { font-size: 1.15rem; }
+.nt-preview h3 { font-size: 1rem; }
+
+.nt-preview p {
+  margin: 0 0 1rem 0;
+}
+
+.nt-preview strong {
+  color: var(--color-primary-light);
+}
+
+.nt-preview ul, .nt-preview ol {
+  margin: 0 0 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.nt-preview li {
+  margin-bottom: 0.25rem;
+}
+
+.nt-preview code {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8rem;
+  color: var(--color-primary-light);
+}
+
+.nt-preview pre {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: var(--spacing-md);
+  overflow-x: auto;
+  margin: 0 0 1rem 0;
+}
+
+.nt-preview pre code {
+  background: transparent;
+  padding: 0;
+  color: rgba(255,255,255,0.78);
+  font-size: 0.8rem;
+}
+
+.nt-preview blockquote {
+  border-left: 3px solid var(--color-primary);
+  background: rgba(0, 212, 255, 0.02);
+  padding: 0.5rem var(--spacing-md);
+  margin: 0 0 1rem 0;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+}

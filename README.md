@@ -1,127 +1,273 @@
 # Nexus AI
 
-Nexus AI is a production-ready MERN productivity platform with a cyberpunk UI, JWT auth, task/note management, analytics, and Gemini-powered AI assistance.
+Futuristic AI-powered productivity SaaS platform built with the MERN stack, Gemini AI integration, advanced analytics, smart task management, notes workspace, and a cyberpunk-inspired modern dashboard UI.
 
-## Live Deployments
+![Frontend](https://img.shields.io/badge/Frontend-React%20%7C%20Vite-61DAFB?style=for-the-badge&logo=react)
+![Backend](https://img.shields.io/badge/Backend-Node.js%20%7C%20Express-339933?style=for-the-badge&logo=nodedotjs)
+![Database](https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb)
+![AI](https://img.shields.io/badge/AI-Gemini%20API-8E75FF?style=for-the-badge&logo=google)
 
-- Frontend (Vercel): https://nexus-ai-mu-one.vercel.app/
-- Backend (Render): https://nexus-ai-backend-fcdy.onrender.com/
-- Backend health: https://nexus-ai-backend-fcdy.onrender.com/api/health
+---
 
-## Tech Stack
+# ✨ Project Overview
 
-- Frontend: React + Vite + React Router
-- Backend: Node.js + Express
-- Database: MongoDB Atlas + Mongoose
-- Auth: JWT (Bearer token)
-- AI: Gemini API with local fallback mode
+Nexus AI is a production-ready AI productivity platform designed to help users manage tasks, organize smart notes, monitor analytics, and interact with an AI assistant inside a futuristic cyberpunk workspace.
 
-## Project Structure
+The platform combines:
+- MERN architecture
+- JWT authentication
+- Gemini AI integration
+- Analytics dashboard
+- Smart productivity tools
+- Responsive glassmorphism UI
+- Cyberpunk visual design
+
+Built for portfolio showcase, recruiter review, and modern SaaS experimentation.
+
+---
+
+# 🌐 Live Demo
+
+### Frontend (Vercel)
+https://nexus-ai-mu-one.vercel.app/
+
+### Backend API (Render)
+https://nexus-ai-backend-fcdy.onrender.com/
+
+### Backend Health Endpoint
+https://nexus-ai-backend-fcdy.onrender.com/api/health
+
+---
+
+# 🚀 Deployment
+
+- Frontend deployed on Vercel
+- Backend deployed on Render
+- Database hosted on MongoDB Atlas
+- AI integration powered by Gemini API
+
+---
+
+# 🎯 Feature Status
+
+| Feature | Status |
+| --- | --- |
+| JWT Authentication | ✅ |
+| Login / Signup System | ✅ |
+| Protected Routes | ✅ |
+| AI Assistant | ✅ |
+| Gemini AI Integration | ✅ |
+| Smart Task Management | ✅ |
+| Notes Workspace | ✅ |
+| Analytics Dashboard | ✅ |
+| Cyberpunk UI | ✅ |
+| Glassmorphism Effects | ✅ |
+| Responsive Design | ✅ |
+| MongoDB Integration | ✅ |
+| Production Deployment | ✅ |
+| Health Monitoring Endpoint | ✅ |
+| Production-safe CORS | ✅ |
+
+---
+
+# 🧠 Tech Stack
+
+## Frontend
+- React
+- Vite
+- React Router
+- Context API
+- CSS3
+- Responsive UI
+
+## Backend
+- Node.js
+- Express.js
+- MongoDB Atlas
+- Mongoose
+- JWT Authentication
+
+## AI Integration
+- Gemini API
+- Local AI fallback system
+
+---
+
+# 📁 Project Structure
 
 ```text
-.
-├── src/                    # Frontend app
-│   ├── api/                # API client + service modules
-│   ├── context/            # Auth, theme, notifications, toasts
-│   ├── pages/              # UI screens (dashboard, auth, analytics, etc.)
-│   ├── components/         # Reusable UI components
-│   └── ai/                 # Local AI intelligence/fallback modules
-├── backend/                # Express API
-│   ├── controllers/        # Route controllers
-│   ├── middleware/         # JWT auth middleware
-│   ├── models/             # Mongoose schemas
-│   ├── routes/             # API route modules
-│   └── config/             # DB connection
-└── Screenshots/            # UI screenshots used in this README
+NEXUS-AI/
+├── src/
+│   ├── ai/
+│   ├── api/
+│   ├── assets/
+│   ├── components/
+│   ├── context/
+│   ├── pages/
+│   ├── styles/
+│   └── utils/
+│
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── server.js
+│   └── package.json
+│
+├── Screenshots/
+├── .env.example
+├── README.md
+└── package.json
 ```
 
-## Environment Variables
+---
 
-### Frontend (`.env`)
+# 🔐 Environment Variables
+
+## Frontend `.env`
 
 ```env
 VITE_API_URL=https://nexus-ai-backend-fcdy.onrender.com
 VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 ```
 
-### Backend (`backend/.env`)
+## Backend `backend/.env`
 
 ```env
 PORT=5000
 NODE_ENV=development
+
 MONGO_URI=YOUR_MONGODB_ATLAS_URI
+
 JWT_SECRET=YOUR_STRONG_JWT_SECRET
 JWT_EXPIRES_IN=7d
+
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
 ALLOWED_ORIGINS=https://nexus-ai-mu-one.vercel.app,http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
 ```
 
-Reference templates:
+---
 
-- `.env.example`
-- `backend/.env.example`
+# 🚀 Installation Guide
 
-## Local Development
+## 1️⃣ Clone Repository
 
-1. Install frontend dependencies:
-   ```bash
-   npm install
-   ```
-2. Install backend dependencies:
-   ```bash
-   cd backend && npm install
-   ```
-3. Run backend:
-   ```bash
-   cd backend && npm run dev
-   ```
-4. Run frontend:
-   ```bash
-   npm run dev
-   ```
+```bash
+git clone https://github.com/YashJaiman/Nexus-AI.git
+```
 
-## API Overview
+---
 
-Base URL:
+## 2️⃣ Install Frontend Dependencies
+
+```bash
+npm install
+```
+
+---
+
+## 3️⃣ Install Backend Dependencies
+
+```bash
+cd backend
+npm install
+```
+
+---
+
+## 4️⃣ Configure Environment Variables
+
+Create:
+- `.env`
+- `backend/.env`
+
+Use `.env.example` files as reference.
+
+---
+
+## 5️⃣ Run Backend
+
+```bash
+cd backend
+npm run dev
+```
+
+---
+
+## 6️⃣ Run Frontend
+
+```bash
+npm run dev
+```
+
+---
+
+# 🔗 API Overview
+
+## Base URL
 
 ```text
 https://nexus-ai-backend-fcdy.onrender.com
 ```
 
-Core routes:
+---
 
-- `POST /api/auth/signup`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-- `PUT /api/auth/profile`
-- `PUT /api/auth/password`
-- `POST /api/auth/logout-all`
-- `GET|POST|PUT|DELETE /api/tasks`
-- `GET|POST|PUT|DELETE /api/notes`
-- `GET /api/analytics`
-- `GET /api/analytics/dashboard-stats`
-- `GET /api/health`
+## Authentication Routes
 
-## Deployment Notes
+| Method | Endpoint |
+| --- | --- |
+| POST | `/api/auth/signup` |
+| POST | `/api/auth/login` |
+| GET | `/api/auth/me` |
+| PUT | `/api/auth/profile` |
+| PUT | `/api/auth/password` |
+| POST | `/api/auth/logout-all` |
 
-### Vercel (Frontend)
+---
 
-- Build command: `npm run build`
-- Output directory: `dist`
-- Required env:
-  - `VITE_API_URL=https://nexus-ai-backend-fcdy.onrender.com`
-  - `VITE_GEMINI_API_KEY=...`
+## Tasks Routes
 
-### Render (Backend)
+| Method | Endpoint |
+| --- | --- |
+| GET | `/api/tasks` |
+| POST | `/api/tasks` |
+| PUT | `/api/tasks/:id` |
+| DELETE | `/api/tasks/:id` |
 
-- Start command: `npm start` (inside `backend`)
-- Node environment must include:
-  - `MONGO_URI`
-  - `JWT_SECRET`
-  - `JWT_EXPIRES_IN`
-  - `ALLOWED_ORIGINS` (include Vercel domain)
+---
 
-## Screenshots
+## Notes Routes
+
+| Method | Endpoint |
+| --- | --- |
+| GET | `/api/notes` |
+| POST | `/api/notes` |
+| PUT | `/api/notes/:id` |
+| DELETE | `/api/notes/:id` |
+
+---
+
+## Analytics Routes
+
+| Method | Endpoint |
+| --- | --- |
+| GET | `/api/analytics` |
+| GET | `/api/analytics/dashboard-stats` |
+
+---
+
+## Health Route
+
+| Method | Endpoint |
+| --- | --- |
+| GET | `/api/health` |
+
+---
+
+# 🖼️ Screenshots
 
 ### Intro Page
 
@@ -151,15 +297,81 @@ Core routes:
 
 ![Features](Screenshots/Features.png)
 
-## Production Checklist
+---
 
-- Frontend API calls use deployed backend URL
-- CORS supports production Vercel domain + preview domains
-- JWT auth flow validates on app load (`/api/auth/me`)
-- Gemini API fallback behavior is preserved
-- Health endpoint available for uptime checks
-- Vite production build succeeds
+# ⚡ Production Optimizations
 
-## License
+- Production-safe API base URL
+- Dynamic environment configuration
+- Vercel + Render deployment compatibility
+- Production-ready CORS handling
+- JWT auth persistence
+- Gemini API fallback mode
+- Health monitoring endpoint
+- Optimized Vite production build
 
-ISC
+---
+
+# ✅ Production Checklist
+
+| Checklist | Status |
+| --- | --- |
+| Frontend deployed on Vercel | ✅ |
+| Backend deployed on Render | ✅ |
+| MongoDB Atlas connected | ✅ |
+| Gemini API integrated | ✅ |
+| JWT Authentication working | ✅ |
+| Protected routes enabled | ✅ |
+| Health endpoint active | ✅ |
+| Responsive UI completed | ✅ |
+| Production build successful | ✅ |
+| Environment variables configured | ✅ |
+
+---
+
+# 🔮 Future Improvements
+
+- Real-time team collaboration
+- AI-generated productivity reports
+- Voice assistant integration
+- Calendar synchronization
+- Notifications system
+- AI workflow automation
+- Admin analytics panel
+
+---
+
+# 👤 Author
+
+**Yash Jaiman**  
+MERN Stack & AI Developer
+
+---
+
+# 📄 License
+
+ISC License
+
+---
+
+# 🏷️ Suggested GitHub Topics
+
+```text
+mern
+react
+vite
+mongodb
+express
+nodejs
+jwt-auth
+gemini-api
+ai-saas
+dashboard
+productivity-app
+cyberpunk-ui
+glassmorphism
+vercel
+render
+```
+
+Built with passion for futuristic UI/UX, AI experiences, and modern full-stack development.

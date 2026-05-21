@@ -31,16 +31,18 @@ connectDB();
 const app = express();
 
 // 3. Mount core middleware utilities
-// Development-friendly origin whitelist. Can be overridden with
-// environment variable `ALLOWED_ORIGINS` (comma-separated).
+// Production-safe CORS allowlist with optional ALLOWED_ORIGINS overrides.
+const defaultAllowedOrigins = [
+  'https://nexus-ai-mu-one.vercel.app',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
+];
+
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()).filter(Boolean)
-  : [
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
-      'http://localhost:5173',
-      'http://127.0.0.1:5173'
-    ];
+  : defaultAllowedOrigins;
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -50,7 +52,9 @@ app.use(cors({
     // Friendly development check: allow localhost and 127.0.0.1 on any port
     const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
 
-    if (isLocalhost || allowedOrigins.includes(origin)) {
+    const isVercelPreview = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+
+    if (isLocalhost || isVercelPreview || allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
 
@@ -77,6 +81,15 @@ app.get('/', (req, res) => {
     message: 'Nexus AI Portal API Node is online and operational',
     version: '1.0.0',
     telemetry: 'Neural link synchronized',
+  });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'ok',
+    service: 'nexus-ai-backend',
+    timestamp: new Date().toISOString(),
   });
 });
 

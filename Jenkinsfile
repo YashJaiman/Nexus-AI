@@ -34,7 +34,7 @@ pipeline {
             steps {
                 sh """
                     node --version && npm --version
-                    npm ci --silent
+                    npm install --silent
                     echo "Frontend dependencies installed"
                 """
             }
@@ -44,7 +44,7 @@ pipeline {
             steps {
                 sh """
                     cd backend
-                    npm ci --silent
+                    npm install --silent
                     if grep -q '"test"' package.json; then
                         npm test || echo "Tests completed"
                     else

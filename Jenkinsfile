@@ -10,7 +10,7 @@ pipeline {
         BUILD_TAG  = "${env.BUILD_NUMBER}"
 
         // SonarQube
-        SCANNER_HOME = tool 'sonar-scanner'   // name from Global Tool Configuration
+        SCANNER_HOME = tool 'Nexus-Sonar'   // name from Global Tool Configuration
     }
 
     options {

@@ -4,13 +4,15 @@ pipeline {
     environment {
         IMAGE_NAME_BACKEND  = "nexus-ai-backend"
         IMAGE_NAME_FRONTEND = "nexus-ai-frontend"
+
         GIT_REPO   = "https://github.com/YashJaiman/Nexus-AI.git"
         GIT_BRANCH = "main"
         APP_PORT   = "5000"
         BUILD_TAG  = "${env.BUILD_NUMBER}"
 
         // SonarQube
-        SCANNER_HOME = tool 'Nexus-Sonar'   // name from Global Tool Configuration
+        SONAR_URL    = "http://13.234.112.164:30002"
+        SCANNER_HOME = tool 'Nexus-Sonar'   // must match SonarQube Scanner tool name
     }
 
     options {
@@ -42,7 +44,7 @@ pipeline {
             }
         }
 
-        stage("Frontend: Install & Lint (optional)") {
+        stage("Frontend: Install & Lint") {
             steps {
                 sh """
                     npm install --silent
@@ -51,6 +53,7 @@ pipeline {
                     else
                         echo "No lint script - skipping"
                     fi
+                    echo "Frontend dependencies installed"
                 """
             }
         }
@@ -65,45 +68,60 @@ pipeline {
                     else
                         echo "No test script - skipping"
                     fi
+                    echo "Backend dependencies installed"
                 """
             }
         }
 
-      stage("SonarQube Analysis") {
-    steps {
-        withSonarQubeEnv('Nexus-Sonar-Server') {
-            sh """
-                ${SCANNER_HOME}/bin/sonar-scanner \\
-                  -Dsonar.projectKey=nexus-ai \\
-                  -Dsonar.projectName=nexus-ai \\
-                  -Dsonar.projectVersion=${BUILD_TAG} \\
-                  -Dsonar.sources=.
-            """
+        stage("SonarQube Analysis") {
+            steps {
+                // 'Nexus-Sonar-Server' must match the SonarQube server name in Jenkins
+                withSonarQubeEnv('Nexus-Sonar-Server') {
+                    sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                          -Dsonar.projectKey=nexus-ai \
+                          -Dsonar.projectName=nexus-ai \
+                          -Dsonar.projectVersion=${BUILD_TAG} \
+                          -Dsonar.sources=.,backend \
+                          -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/.git/**,**/coverage/**,**/*.min.js \
+                          -Dsonar.sourceEncoding=UTF-8 \
+                          -Dsonar.host.url=${SONAR_URL}
+                    """
+                }
+            }
         }
-    }
-}
+
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage("Build Docker Images") {
             steps {
                 withCredentials([
                     string(credentialsId: "nexus-ai-gemini-key", variable: "GEMINI_KEY")
                 ]) {
                     sh """
-                        # Backend
-                        docker build \\
-                          -f Dockerfile.backend \\
-                          -t ${IMAGE_NAME_BACKEND}:${BUILD_TAG} \\
-                          -t ${IMAGE_NAME_BACKEND}:latest \\
+                        echo "Building Backend image..."
+                        docker build \
+                          -f Dockerfile.backend \
+                          -t ${IMAGE_NAME_BACKEND}:${BUILD_TAG} \
+                          -t ${IMAGE_NAME_BACKEND}:latest \
                           .
 
-                        # Frontend
-                        docker build \\
-                          -f Dockerfile.frontend \\
-                          --build-arg VITE_API_URL=http://backend:5000 \\
-                          --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \\
-                          -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \\
-                          -t ${IMAGE_NAME_FRONTEND}:latest \\
+                        echo "Building Frontend image..."
+                        docker build \
+                          -f Dockerfile.frontend \
+                          --build-arg VITE_API_URL=http://backend:5000 \
+                          --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \
+                          -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \
+                          -t ${IMAGE_NAME_FRONTEND}:latest \
                           .
 
+                        echo "Images built:"
                         docker images | grep nexus-ai || true
                     """
                 }
@@ -122,10 +140,16 @@ pipeline {
                         export JWT_SECRET="${JWT_SECRET}"
                         export GEMINI_API_KEY="${GEMINI_KEY}"
                         export JWT_EXPIRES_IN="7d"
-                        export ALLOWED_ORIGINS="http://localhost:5000,http://localhost:3000"
+                        export ALLOWED_ORIGINS="http://13.234.112.164:${APP_PORT},http://13.234.112.164:3000"
 
+                        echo "Stopping old stack..."
                         docker compose down || docker-compose down || true
+
+                        echo "Starting new stack..."
                         docker compose up -d || docker-compose up -d
+
+                        echo "Running containers:"
+                        docker ps
                     """
                 }
             }
@@ -134,11 +158,31 @@ pipeline {
         stage("Health Check") {
             steps {
                 sh """
+                    echo "Waiting for app to start..."
                     sleep 15
-                    curl -f http://localhost:${APP_PORT}/api/health \\
-                        && echo "✅ Backend LIVE at http://localhost:${APP_PORT}" \\
-                        || echo "⚠️ Health check FAILED"
+                    curl -f http://13.234.112.164:${APP_PORT}/api/health \
+                        && echo "✅ Backend LIVE at http://13.234.112.164:${APP_PORT}" \
+                        || echo "⚠️ Health check FAILED - check docker logs"
+                    echo "Container status:"
                     docker ps
+                """
+            }
+        }
+
+        stage("Cleanup Old Images") {
+            steps {
+                sh """
+                    echo "Removing old tagged images (keeping last 3)..."
+                    docker images ${IMAGE_NAME_BACKEND} --format "{{.Tag}}" | \
+                        grep -v latest | sort -n | head -n -3 | \
+                        xargs -I {} docker rmi ${IMAGE_NAME_BACKEND}:{} || true
+
+                    docker images ${IMAGE_NAME_FRONTEND} --format "{{.Tag}}" | \
+                        grep -v latest | sort -n | head -n -3 | \
+                        xargs -I {} docker rmi ${IMAGE_NAME_FRONTEND}:{} || true
+
+                    docker image prune -f || true
+                    echo "Cleanup done"
                 """
             }
         }
@@ -146,17 +190,26 @@ pipeline {
 
     post {
         always {
-            sh """
-                docker image prune -f || true
-                docker builder prune -f || true
-            """
-            cleanWs()
+            script {
+                sh """
+                    docker image prune -f || true
+                    docker builder prune -f || true
+                """
+                cleanWs()
+            }
         }
         success {
-            echo "✅ App LIVE at http://localhost:${APP_PORT}/api/health"
+            echo "✅ App LIVE        → http://13.234.112.164:${APP_PORT}"
+            echo "✅ SonarQube Report → http://13.234.112.164:30002/dashboard?id=nexus-ai"
         }
         failure {
-            sh "docker logs \$(docker ps -q --filter name=backend) --tail=50 || true"
+            script {
+                sh """
+                    echo "❌ Pipeline FAILED - printing container logs..."
+                    docker logs \$(docker ps -q --filter name=nexus-backend)  --tail=50 || true
+                    docker logs \$(docker ps -q --filter name=nexus-frontend) --tail=50 || true
+                """
+            }
         }
     }
 }

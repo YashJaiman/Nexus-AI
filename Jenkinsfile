@@ -2,12 +2,15 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "nexus-ai"
-        CONTAINER  = "nexus-ai-container"
+        IMAGE_NAME_BACKEND  = "nexus-ai-backend"
+        IMAGE_NAME_FRONTEND = "nexus-ai-frontend"
         GIT_REPO   = "https://github.com/YashJaiman/Nexus-AI.git"
         GIT_BRANCH = "main"
         APP_PORT   = "5000"
         BUILD_TAG  = "${env.BUILD_NUMBER}"
+
+        // SonarQube
+        SCANNER_HOME = tool 'sonar-scanner'   // name from Global Tool Configuration
     }
 
     options {
@@ -17,30 +20,42 @@ pipeline {
     }
 
     triggers {
-        githubPush()  // Auto-trigger on every push via webhook
+        githubPush()
     }
 
     stages {
 
         stage("Clone Repository") {
             steps {
-                // Public repo — no credentialsId needed
                 git url: GIT_REPO, branch: GIT_BRANCH
                 sh "ls -la"
             }
         }
 
-        stage("Frontend — Install") {
+        stage("Sanity: Node & NPM") {
             steps {
                 sh """
-                    node --version && npm --version
-                    npm install --silent
-                    echo "Frontend dependencies installed"
+                    node --version
+                    npm --version
+                    echo "Node & npm available"
                 """
             }
         }
 
-        stage("Backend — Install and Test") {
+        stage("Frontend: Install & Lint (optional)") {
+            steps {
+                sh """
+                    npm install --silent
+                    if grep -q '"lint"' package.json; then
+                        npm run lint || echo "Lint step failed but continuing"
+                    else
+                        echo "No lint script - skipping"
+                    fi
+                """
+            }
+        }
+
+        stage("Backend: Install & Test") {
             steps {
                 sh """
                     cd backend
@@ -48,39 +63,57 @@ pipeline {
                     if grep -q '"test"' package.json; then
                         npm test || echo "Tests completed"
                     else
-                        echo "No test script — skipping"
+                        echo "No test script - skipping"
                     fi
                 """
             }
         }
 
-        stage("Build Docker Image Locally") {
+        stage("SonarQube Analysis") {
             steps {
-                withCredentials([string(credentialsId: "nexus-ai-gemini-key", variable: "GEMINI_KEY")]) {
+                // 'Nexus-Sonar' must match the name configured under SonarQube servers in Jenkins
+                withSonarQubeEnv('Nexus-Sonar') {
                     sh """
-                        docker build \\
-                            --build-arg VITE_API_URL=http://localhost:5000 \\
-                            --build-arg VITE_GEMINI_API_KEY=\${GEMINI_KEY} \\
-                            -t nexus-ai:\${BUILD_TAG} \\
-                            -t nexus-ai:latest \\
-                            .
-                        docker images | grep nexus-ai
+                        ${SCANNER_HOME}/bin/sonar-scanner \\
+                          -Dsonar.projectKey=nexus-ai \\
+                          -Dsonar.projectName=nexus-ai \\
+                          -Dsonar.projectVersion=${BUILD_TAG} \\
+                          -Dsonar.sources=. \\
+                          -Dsonar.host.url=http://12.234.112.162:30002
                     """
                 }
             }
         }
 
-        stage("Stop Old Container") {
+        stage("Build Docker Images") {
             steps {
-                sh """
-                    docker stop nexus-ai-container || true
-                    docker rm   nexus-ai-container || true
-                    echo "Old container cleared"
-                """
+                withCredentials([
+                    string(credentialsId: "nexus-ai-gemini-key", variable: "GEMINI_KEY")
+                ]) {
+                    sh """
+                        # Backend
+                        docker build \\
+                          -f Dockerfile.backend \\
+                          -t ${IMAGE_NAME_BACKEND}:${BUILD_TAG} \\
+                          -t ${IMAGE_NAME_BACKEND}:latest \\
+                          .
+
+                        # Frontend
+                        docker build \\
+                          -f Dockerfile.frontend \\
+                          --build-arg VITE_API_URL=http://backend:5000 \\
+                          --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \\
+                          -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \\
+                          -t ${IMAGE_NAME_FRONTEND}:latest \\
+                          .
+
+                        docker images | grep nexus-ai || true
+                    """
+                }
             }
         }
 
-        stage("Run New Container") {
+        stage("Deploy with Docker Compose") {
             steps {
                 withCredentials([
                     string(credentialsId: "nexus-ai-mongo-uri",  variable: "MONGO_URI"),
@@ -88,19 +121,14 @@ pipeline {
                     string(credentialsId: "nexus-ai-gemini-key", variable: "GEMINI_KEY")
                 ]) {
                     sh """
-                        docker run -d \\
-                            --name nexus-ai-container \\
-                            --restart unless-stopped \\
-                            -p 5000:5000 \\
-                            -e PORT=5000 \\
-                            -e NODE_ENV=production \\
-                            -e MONGO_URI="\${MONGO_URI}" \\
-                            -e JWT_SECRET="\${JWT_SECRET}" \\
-                            -e JWT_EXPIRES_IN=7d \\
-                            -e GEMINI_API_KEY="\${GEMINI_KEY}" \\
-                            -e ALLOWED_ORIGINS="http://localhost:5000,http://localhost:3000" \\
-                            nexus-ai:latest
-                        docker ps | grep nexus-ai-container
+                        export MONGO_URI="${MONGO_URI}"
+                        export JWT_SECRET="${JWT_SECRET}"
+                        export GEMINI_API_KEY="${GEMINI_KEY}"
+                        export JWT_EXPIRES_IN="7d"
+                        export ALLOWED_ORIGINS="http://localhost:5000,http://localhost:3000"
+
+                        docker compose down || docker-compose down || true
+                        docker compose up -d || docker-compose up -d
                     """
                 }
             }
@@ -110,10 +138,10 @@ pipeline {
             steps {
                 sh """
                     sleep 15
-                    curl -f http://localhost:5000/api/health \\
-                        && echo "✅ App LIVE at http://localhost:5000" \\
+                    curl -f http://localhost:${APP_PORT}/api/health \\
+                        && echo "✅ Backend LIVE at http://localhost:${APP_PORT}" \\
                         || echo "⚠️ Health check FAILED"
-                    docker logs nexus-ai-container --tail=20
+                    docker ps
                 """
             }
         }
@@ -121,16 +149,17 @@ pipeline {
 
     post {
         always {
-            // Keep last 3 builds, clean the rest
             sh """
-                docker images nexus-ai --format "{{.Tag}}" | \\
-                    grep -v latest | sort -n | head -n -3 | \\
-                    xargs -I {} docker rmi nexus-ai:{} || true
                 docker image prune -f || true
+                docker builder prune -f || true
             """
             cleanWs()
         }
-        success { echo "✅ Live: http://localhost:5000/api/health" }
-        failure { sh "docker logs nexus-ai-container --tail=50 || true" }
+        success {
+            echo "✅ App LIVE at http://localhost:${APP_PORT}/api/health"
+        }
+        failure {
+            sh "docker logs \$(docker ps -q --filter name=backend) --tail=50 || true"
+        }
     }
 }

@@ -1,0 +1,25 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --silent
+
+COPY src/ ./src/
+COPY index.html ./
+COPY vite.config.* ./
+
+# Environment variables are passed from docker-compose
+ARG VITE_API_URL
+ARG VITE_GEMINI_API_KEY
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
+RUN npm run build
+
+# Option 1: Serve with Vite preview (port 4173)
+# CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "3000"]
+
+# Option 2: Use a lightweight static server (recommended for prod)
+RUN npm install -g serve
+CMD ["serve", "-s", "dist", "-l", "3000"]

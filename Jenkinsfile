@@ -69,22 +69,19 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis") {
-            steps {
-                // 'Nexus-Sonar' must match the name configured under SonarQube servers in Jenkins
-                withSonarQubeEnv('Nexus-Sonar') {
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \\
-                          -Dsonar.projectKey=nexus-ai \\
-                          -Dsonar.projectName=nexus-ai \\
-                          -Dsonar.projectVersion=${BUILD_TAG} \\
-                          -Dsonar.sources=. \\
-                          -Dsonar.host.url=http://12.234.112.162:30002
-                    """
-                }
-            }
+      stage("SonarQube Analysis") {
+    steps {
+        withSonarQubeEnv('Nexus-Sonar-Server') {
+            sh """
+                ${SCANNER_HOME}/bin/sonar-scanner \\
+                  -Dsonar.projectKey=nexus-ai \\
+                  -Dsonar.projectName=nexus-ai \\
+                  -Dsonar.projectVersion=${BUILD_TAG} \\
+                  -Dsonar.sources=.
+            """
         }
-
+    }
+}
         stage("Build Docker Images") {
             steps {
                 withCredentials([

@@ -74,19 +74,20 @@ pipeline {
         }
 
         stage("SonarQube Analysis") {
-            steps {
-                // 'Nexus-Sonar-Server' must match the SonarQube server name in Jenkins
-                withSonarQubeEnv('Nexus-Sonar-Server') {
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner \
-                          -Dsonar.projectKey=nexus-ai \
-                          -Dsonar.projectName=nexus-ai \
-                          -Dsonar.projectVersion=${BUILD_TAG} \
-                          -Dsonar.host.url=${SONAR_URL}
-                    """
-                }
+    steps {
+        timeout(time: 20, unit: 'MINUTES') {
+            withSonarQubeEnv('Nexus-Sonar-Server') {
+                sh """
+                    ${SCANNER_HOME}/bin/sonar-scanner \
+                      -Dsonar.projectKey=nexus-ai \
+                      -Dsonar.projectName=nexus-ai \
+                      -Dsonar.projectVersion=${BUILD_TAG} \
+                      -Dsonar.host.url=${SONAR_URL}
+                """
             }
         }
+    }
+}
 
         stage("Quality Gate") {
             steps {

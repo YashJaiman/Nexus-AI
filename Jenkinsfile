@@ -11,7 +11,7 @@ pipeline {
         BUILD_TAG  = "${env.BUILD_NUMBER}"
 
         // SonarQube
-        SONAR_URL    = "http://13.234.112.164:30002"
+        SONAR_URL    = "http://13.126.70.169:30002"
         SCANNER_HOME = tool 'Nexus-Sonar'   // must match SonarQube Scanner tool name
     }
 
@@ -140,7 +140,7 @@ pipeline {
                         export JWT_SECRET="${JWT_SECRET}"
                         export GEMINI_API_KEY="${GEMINI_KEY}"
                         export JWT_EXPIRES_IN="7d"
-                        export ALLOWED_ORIGINS="http://13.234.112.164:${APP_PORT},http://13.234.112.164:3000"
+                        export ALLOWED_ORIGINS="http://13.126.70.169:${APP_PORT},http://13.126.70.169:3000"
 
                         echo "Stopping old stack..."
                         docker compose down || docker-compose down || true
@@ -161,7 +161,7 @@ pipeline {
                     echo "Waiting for app to start..."
                     sleep 15
                     curl -f http://13.234.112.164:${APP_PORT}/api/health \
-                        && echo "✅ Backend LIVE at http://13.234.112.164:${APP_PORT}" \
+                        && echo "✅ Backend LIVE at http://13.126.70.169:${APP_PORT}" \
                         || echo "⚠️ Health check FAILED - check docker logs"
                     echo "Container status:"
                     docker ps
@@ -199,8 +199,8 @@ pipeline {
             }
         }
         success {
-            echo "✅ App LIVE        → http://13.234.112.164:${APP_PORT}"
-            echo "✅ SonarQube Report → http://13.234.112.164:30002/dashboard?id=nexus-ai"
+            echo "✅ App LIVE        → http://13.126.70.169:${APP_PORT}"
+            echo "✅ SonarQube Report → http://13.126.70.169:30002/dashboard?id=nexus-ai"
         }
         failure {
             script {

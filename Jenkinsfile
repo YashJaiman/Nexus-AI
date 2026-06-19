@@ -12,7 +12,7 @@ pipeline {
 
         // SonarQube
         SONAR_URL    = "http://13.126.70.169:30002"
-        SCANNER_HOME = tool 'Nexus-Sonar'   // must match SonarQube Scanner tool name
+        SCANNER_HOME = tool 'Nexus-Sonar'   // Global Tool Configuration name
     }
 
     options {
@@ -82,9 +82,6 @@ pipeline {
                           -Dsonar.projectKey=nexus-ai \
                           -Dsonar.projectName=nexus-ai \
                           -Dsonar.projectVersion=${BUILD_TAG} \
-                          -Dsonar.sources=.,backend \
-                          -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/build/**,**/.git/**,**/coverage/**,**/*.min.js \
-                          -Dsonar.sourceEncoding=UTF-8 \
                           -Dsonar.host.url=${SONAR_URL}
                     """
                 }
@@ -160,7 +157,7 @@ pipeline {
                 sh """
                     echo "Waiting for app to start..."
                     sleep 15
-                    curl -f http://13.234.112.164:${APP_PORT}/api/health \
+                    curl -f http://13.126.70.169:${APP_PORT}/api/health \
                         && echo "✅ Backend LIVE at http://13.126.70.169:${APP_PORT}" \
                         || echo "⚠️ Health check FAILED - check docker logs"
                     echo "Container status:"
@@ -200,14 +197,26 @@ pipeline {
         }
         success {
             echo "✅ App LIVE        → http://13.126.70.169:${APP_PORT}"
-            echo "✅ SonarQube Report → http://13.126.70.169:30002/dashboard?id=nexus-ai"
+            echo "✅ SonarQube Report → ${SONAR_URL}/dashboard?id=nexus-ai"
         }
         failure {
             script {
                 sh """
                     echo "❌ Pipeline FAILED - printing container logs..."
-                    docker logs \$(docker ps -q --filter name=nexus-backend)  --tail=50 || true
-                    docker logs \$(docker ps -q --filter name=nexus-frontend) --tail=50 || true
+                    BACKEND_ID=\$(docker ps -q --filter name=nexus-backend)
+                    FRONTEND_ID=\$(docker ps -q --filter name=nexus-frontend)
+
+                    if [ -n "$BACKEND_ID" ]; then
+                      docker logs --tail=50 "$BACKEND_ID" || true
+                    else
+                      echo "No backend container running"
+                    fi
+
+                    if [ -n "$FRONTEND_ID" ]; then
+                      docker logs --tail=50 "$FRONTEND_ID" || true
+                    else
+                      echo "No frontend container running"
+                    fi
                 """
             }
         }

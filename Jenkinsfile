@@ -17,7 +17,7 @@ pipeline {
 
     options {
         buildDiscarder(logRotator(numToKeepStr: "10"))
-        timeout(time: 30, unit: "MINUTES")
+        timeout(time: 60, unit: "MINUTES")
         disableConcurrentBuilds()
     }
 
@@ -34,6 +34,35 @@ pipeline {
             }
         }
 
+        stage("Debug Worker") {
+    steps {
+        sh '''
+            echo "===== MEMORY ====="
+            free -h
+
+            echo "===== DISK ====="
+            df -h
+
+            echo "===== NODE ====="
+            node -v
+            npm -v
+
+            echo "===== REGISTRY ====="
+            npm config get registry
+
+            echo "===== NETWORK ====="
+            curl -I https://registry.npmjs.org
+
+            echo "===== WORKSPACE ====="
+            pwd
+            ls -lah
+
+            echo "===== NPM CACHE ====="
+            npm config get cache
+        '''
+    }
+}
+
         stage("Sanity: Node & NPM") {
             steps {
                 sh """
@@ -47,7 +76,7 @@ pipeline {
         stage("Frontend: Install & Lint") {
             steps {
                 sh """
-                    npm install --silent
+                    npm install --verbose
                     if grep -q '"lint"' package.json; then
                         npm run lint || echo "Lint step failed but continuing"
                     else
@@ -62,7 +91,7 @@ pipeline {
             steps {
                 sh """
                     cd backend
-                    npm install --silent
+                    npm install --verbose
                     if grep -q '"test"' package.json; then
                         npm test || echo "Tests completed"
                     else

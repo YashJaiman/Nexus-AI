@@ -128,7 +128,7 @@ pipeline {
 
                         docker build \
                             -f Dockerfile.frontend \
-                            --build-arg VITE_API_URL=http://3.111.186.12:5000 \
+                            --build-arg VITE_API_URL=http://13.201.11.78:5000 \
                             --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \
                             -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \
                             -t ${IMAGE_NAME_FRONTEND}:latest \
@@ -156,7 +156,7 @@ pipeline {
                         export GEMINI_API_KEY="${GEMINI_API_KEY}"
 
                         export JWT_EXPIRES_IN="7d"
-                        export ALLOWED_ORIGINS="http://3.111.186.12:3000"
+                        export ALLOWED_ORIGINS="http://13.201.11.78:3000"
 
                         echo "Stopping old containers..."
                         docker compose down || true
@@ -212,9 +212,9 @@ pipeline {
             echo "======================================"
             echo "DEPLOYMENT SUCCESSFUL"
             echo "======================================"
-            echo "Frontend : http://3.111.186.12:3000"
-            echo "Backend  : http://3.111.186.12:5000/api/health"
-            echo "SonarQube: http://15.206.124.71:30002"
+            echo "Frontend : http://13.201.11.78:3000"
+            echo "Backend  : http://13.201.11.78:5000/api/health"
+            echo "SonarQube: http://http://13.232.9.58:30002"
             echo "======================================"
         }
 

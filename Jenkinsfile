@@ -30,7 +30,7 @@ pipeline {
                 git branch: GIT_BRANCH, url: GIT_REPO
 
                 sh '''
-                    echo "Repository cloned successfully"
+                    echo "===== REPOSITORY CLONED ====="
                     pwd
                     ls -lah
                 '''
@@ -52,6 +52,9 @@ pipeline {
 
                     echo "===== DOCKER ====="
                     docker --version
+
+                    echo "===== DOCKER COMPOSE ====="
+                    docker compose version || docker-compose version
 
                     echo "===== WORKSPACE ====="
                     pwd
@@ -93,8 +96,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('Nexus-Sonar-Server') {
+
                     sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner
+                        ${SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=nexus-ai \
+                        -Dsonar.projectName=nexus-ai \
+                        -Dsonar.projectVersion=${BUILD_TAG}
                     """
                 }
             }
@@ -116,25 +123,26 @@ pipeline {
                 ]) {
 
                     sh """
-                        echo "Building Backend Image..."
+                        echo "===== BUILDING BACKEND IMAGE ====="
 
                         docker build \
-                            -f Dockerfile.backend \
-                            -t ${IMAGE_NAME_BACKEND}:${BUILD_TAG} \
-                            -t ${IMAGE_NAME_BACKEND}:latest \
-                            .
+                          -f Dockerfile.backend \
+                          -t ${IMAGE_NAME_BACKEND}:${BUILD_TAG} \
+                          -t ${IMAGE_NAME_BACKEND}:latest \
+                          .
 
-                        echo "Building Frontend Image..."
+                        echo "===== BUILDING FRONTEND IMAGE ====="
 
                         docker build \
-                            -f Dockerfile.frontend \
-                            --build-arg VITE_API_URL=http://13.201.11.78:5000 \
-                            --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \
-                            -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \
-                            -t ${IMAGE_NAME_FRONTEND}:latest \
-                            .
+                          -f Dockerfile.frontend \
+                          --build-arg VITE_API_URL=http://13.232.9.58:5000 \
+                          --build-arg VITE_GEMINI_API_KEY=${GEMINI_KEY} \
+                          -t ${IMAGE_NAME_FRONTEND}:${BUILD_TAG} \
+                          -t ${IMAGE_NAME_FRONTEND}:latest \
+                          .
 
-                        echo "Built Images:"
+                        echo "===== BUILT IMAGES ====="
+
                         docker images | grep nexus-ai || true
                     """
                 }
@@ -156,15 +164,15 @@ pipeline {
                         export GEMINI_API_KEY="${GEMINI_API_KEY}"
 
                         export JWT_EXPIRES_IN="7d"
-                        export ALLOWED_ORIGINS="http://13.201.11.78:3000"
+                        export ALLOWED_ORIGINS="http://13.232.9.58:3000"
 
-                        echo "Stopping old containers..."
+                        echo "===== STOPPING OLD CONTAINERS ====="
                         docker compose down || true
 
-                        echo "Starting new containers..."
+                        echo "===== STARTING NEW CONTAINERS ====="
                         docker compose up -d
 
-                        echo "Running Containers..."
+                        echo "===== RUNNING CONTAINERS ====="
                         docker ps
                     """
                 }
@@ -175,7 +183,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Waiting for backend startup..."
-                    sleep 20
+                    sleep 30
 
                     curl -f http://localhost:5000/api/health
 
@@ -187,6 +195,7 @@ pipeline {
         stage('Show Running Containers') {
             steps {
                 sh '''
+                    echo "===== CONTAINERS ====="
                     docker ps
                 '''
             }
@@ -209,16 +218,18 @@ pipeline {
         }
 
         success {
-            echo "======================================"
+
+            echo "========================================="
             echo "DEPLOYMENT SUCCESSFUL"
-            echo "======================================"
-            echo "Frontend : http://13.201.11.78:3000"
-            echo "Backend  : http://13.201.11.78:5000/api/health"
-            echo "SonarQube: http://http://13.232.9.58:30002"
-            echo "======================================"
+            echo "========================================="
+            echo "Frontend  : http://13.232.9.58:3000"
+            echo "Backend   : http://13.232.9.58:5000/api/health"
+            echo "SonarQube : http://13.201.11.78:30002"
+            echo "========================================="
         }
 
         failure {
+
             sh '''
                 echo "===== BACKEND LOGS ====="
                 docker logs nexus-backend --tail=100 || true
